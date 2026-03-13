@@ -1,0 +1,21 @@
+{
+  "name": "neural-network",
+  "type": "module",
+  "exports":{
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		},
+    "./algorithms/*": {
+      "default": "./src/algorithms/*.ts"
+    }
+	},
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
