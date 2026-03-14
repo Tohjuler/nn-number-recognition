@@ -14,29 +14,36 @@ export default function createLayer(
 		return neurons.map((neuron) => neuron.activate(inputs));
 	};
 
+	/**
+	 * backward(deltaZ, lr) expects deltaZ per neuron:
+	 * deltaZ[i] = dLoss/dZ_i  (Z = pre-activation)
+	 *
+	 * Returns deltaA_prev (dLoss/dA_prev), where A_prev are the inputs to this layer.
+	 */
 	const backward = (
-		nextLayerDeltas: number[],
+		deltaZ: number[],
 		learningRate: number,
 	): number[] => {
-		const deltas = neurons.map((neuron, i) => {
-			const neuronState = neuron.getState();
-			if (neuronState.lastActivation === null)
-				throw new Error(
-					"No activation stored for neuron during backward pass.",
-				);
-			const oldWeights = neuronState.weights;
-			const delta =
-				nextLayerDeltas[i]! *
-				neuron.activationDerivative(neuronState.lastActivation);
-			neuron.updateWeights(learningRate, delta);
-			return oldWeights.map((weight) => weight * delta);
-		});
-        const firstNeuronDelta = deltas[0];
-        if (!firstNeuronDelta) throw new Error("No deltas calculated for backward pass.");
+		const oldWeights = neurons.map((n) => n.getState().weights.slice());
 
-		return firstNeuronDelta.map((_, inputIndex) =>
-			deltas.reduce((sum, deltas) => sum + deltas[inputIndex]!, 0), // We sum all the deltas for each weight
-		);
+		for (let i = 0; i < neurons.length; i++) {
+			neurons[i]!.updateWeights(learningRate, deltaZ[i]!); // Update the weights
+		}
+
+		// Compute the deltaA_prev
+		const prevSize = oldWeights[0]?.length ?? 0; // Number of inputs to this layer
+		if (prevSize === 0) return []; // No inputs, so no deltas to propagate back
+
+		const deltaAprev = new Array(prevSize).fill(0);
+		for (let i = 0; i < prevSize; i++) {
+			let sum = 0;
+			for (let j = 0; j < oldWeights.length; j++) {
+				sum += oldWeights[j]![i]! * deltaZ[j]!;
+			}
+			deltaAprev[i] = sum;
+		}
+
+		return deltaAprev;
 	};
 
 	const getNeurons = () => neurons;

@@ -1,3 +1,4 @@
+import { shuffle } from "neural-network/utils";
 
 interface DatasetOptions {
     limit?: number;
@@ -20,7 +21,7 @@ export default async function getDataset(type: "train" | "test", options?: Datas
         }));
         dataset.push(...digitData);
     }
-    return dataset;
+    return shuffle(dataset);
 }
 
 function path(type: "train" | "test", digit: number): string {

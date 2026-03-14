@@ -21,27 +21,49 @@ export interface Layer {
 
 export type EpochData = {
 	epoch: number;
-	averageLoss: number;
 	time: number;
+	averageLoss: number;
+	validationLoss?: number;
+	validationAccuracy?: number;
+	validationTime?: number;
 	averageForwardTime: number;
-	averageBackwardTime: number;
+}
+
+export type LossResult = {
+	loss: number;
+	deltaZ?: number[]; // Used for output layer (dLoss/dZ_out)
 }
 
 export type TrainOptions = {
-	batchSize?: number;
+	validationData?: { inputs: number[]; expected: number[] }[];
+	// batchSize?: number;
 	onEpochEnd?: (data: EpochData) => void;
+
+	// Loss
 	lossFunction?: (output: number[], expected: number[]) => number;
+	lossWithDelta?: (output: number[], expected: number[]) => LossResult;
+}
+
+export type TrainResult = {
+	epoch: number;
+	averageLoss: number;
+	lossOverEpochs: number[];
+	validationLoss?: number;
+	validationLossOverEpochs?: number[];
+	validationAccuracy?: number;
+	validationAccuracyOverEpochs?: number[];
+	times: Record<string, number>;
 }
 
 export interface Network {
 	forward(inputs: number[]): number[];
-	backward(target: number[], learningRate: number): void;
+	backward(target: number[], learningRate: number, outputDeltaZ?: number[]): void;
 	train(
 		trainingData: { inputs: number[]; expected: number[] }[],
 		learningRate: number,
 		epochs: number,
 		options?: TrainOptions,
-	): void;
+	): TrainResult;
 	getLayers(): Layer[];
 	exportData(filename: string): void;
 }

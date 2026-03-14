@@ -6,8 +6,10 @@ import type {
 	ActivationDerivative,
 	LayerData,
 	Network,
-    TrainOptions,
+	TrainOptions,
+	TrainResult,
 } from "./types";
+import { shuffle, timerHelper } from "./utils";
 
 export default function createNetwork(
 	layerData: LayerData[],
@@ -41,20 +43,50 @@ export default function createNetwork(
 		);
 	};
 
-	const backward = (target: number[], learningRate: number): void => {
-		const lastLayerDeltas = layers[layers.length - 1]!.getNeurons().map(
-			(neuron, i) => {
-				const state = neuron.getState();
-				return (
-					(state.lastOutput! - target[i]!) *
-					neuron.activationDerivative(state.lastActivation!)
-				);
-			},
-		);
+	const backward = (
+		target: number[],
+		learningRate: number,
+		outputDeltaZ?: number[],
+	): void => {
+		let deltaZ = outputDeltaZ; // If using softmax+CE, then it is give, else we compute it now.
 
-		let nextLayerDeltas = lastLayerDeltas;
-		for (let i = layers.length - 1; i >= 0; i--) {
-			nextLayerDeltas = layers[i]!.backward(nextLayerDeltas, learningRate);
+		if (!deltaZ) {
+			// Fallback, assumes we use MSE loss func.
+			// deltaZ_i = (a_i - y_i) * f'(z_i)
+			const lastLayer = layers[layers.length - 1]!;
+			deltaZ = lastLayer.getNeurons().map((neuron, i) => {
+				const state = neuron.getState();
+				if (state.lastActivation === null || state.lastOutput === null)
+					throw new Error(
+						"Neuron state is missing activation or output for backward pass.",
+					);
+				return (
+					(state.lastOutput - target[i]!) *
+					neuron.activationDerivative(state.lastActivation)
+				);
+			});
+		}
+
+		// Backdrop
+		for (let idx = layers.length - 1; idx >= 0; idx--) {
+			const layer = layers[idx]!;
+			const deltaAprev = layer.backward(deltaZ, learningRate);
+
+			// Prepare deltaZ for prev (next) layer
+			const prevLayer = layers[idx - 1];
+			if (!prevLayer) break; // No more layers to propagate back to
+
+			// deltaZ_prev = deltaA_prev '* f'(z_prev)
+			deltaZ = prevLayer.getNeurons().map((neuron, i) => {
+				const state = neuron.getState();
+				if (state.lastActivation === null)
+					throw new Error(
+						"Neuron state is missing activation for backward pass.",
+					);
+				return (
+					deltaAprev[i]! * neuron.activationDerivative(state.lastActivation)
+				);
+			});
 		}
 	};
 
@@ -63,38 +95,109 @@ export default function createNetwork(
 		learningRate: number,
 		epochs: number,
 		options?: TrainOptions,
-	): void => {
+	): TrainResult => {
 		const lossFunction = options?.lossFunction || mse;
-		for (let epoch = 0; epoch < epochs; epoch++) {
-			const start = performance.now();
-			const avgForward: number[] = [];
-			const avgBackward: number[] = [];
-			let loss = 0;
-			let i = 0;
-			for (const { inputs, expected } of trainingData) {
-				const forwardStart = performance.now();
-				const output = forward(inputs);
-				avgForward.push(performance.now() - forwardStart);
-				if ((options?.batchSize && i > 0 && i % options.batchSize === 0) || !options?.batchSize) {
-					const startBackward = performance.now();
-					backward(expected, learningRate);
-					avgBackward.push(performance.now() - startBackward);
-				}
-				loss += lossFunction(output, expected);
+		const lossOverEpochs: number[] = [];
+		const validationLossOverEpochs: number[] = [];
+		const validationAccuracyOverEpochs: number[] = [];
+		const times = timerHelper();
 
-				i++;
+		times.start("totalTraining");
+		for (let epoch = 0; epoch < epochs; epoch++) {
+			times.start("epoch");
+
+			let loss = 0;
+			for (const { inputs, expected } of shuffle(trainingData)) {
+				times.start("forward");
+				const output = forward(inputs);
+				times.end("forward", "averageForward");
+
+				if (options?.lossWithDelta) {
+					times.start("lossWithDelta");
+					const res = options.lossWithDelta(output, expected);
+					times.end("lossWithDelta", "averageLossWithDelta");
+
+					loss += res.loss;
+					times.start("backward");
+					backward(expected, learningRate, res.deltaZ);
+					times.end("backward", "averageBackward");
+				} else {
+					times.start("loss");
+					loss += lossFunction(output, expected);
+					times.end("loss", "averageLoss");
+
+					times.start("backward");
+					backward(expected, learningRate);
+					times.end("backward", "averageBackward");
+				}
 			}
+			const avgLoss = loss / trainingData.length;
+			lossOverEpochs.push(avgLoss);
+			const epochTime = times.end("epoch", "averageEpoch");
+
+			let validationLoss: number | null = null;
+			let validationAccuracy: number | null = null;
+			let validationTime: number | null = null;
+			if (options?.validationData) {
+				times.start("validation");
+				let correct = 0;
+				validationLoss =
+					options.validationData.reduce((sum, { inputs, expected }) => {
+						const output = forward(inputs);
+						const predicted = output.indexOf(Math.max(...output));
+						const actual = expected.indexOf(Math.max(...expected));
+						if (predicted === actual) correct++;
+						return (
+							sum +
+							(options?.lossWithDelta
+								? options.lossWithDelta(output, expected).loss
+								: lossFunction(output, expected))
+						);
+					}, 0) / options.validationData.length;
+				validationAccuracy = correct / options.validationData.length;
+
+				validationTime = times.end("validation", "averageValidation");
+				validationLossOverEpochs.push(validationLoss);
+				validationAccuracyOverEpochs.push(validationAccuracy);
+			}
+
 			if (options?.onEpochEnd)
 				options.onEpochEnd({
 					epoch,
-					averageLoss: loss / trainingData.length,
-					time: performance.now() - start,
-					averageForwardTime:
-						avgForward.reduce((a, b) => a + b, 0) / avgForward.length,
-					averageBackwardTime:
-						avgBackward.reduce((a, b) => a + b, 0) / avgBackward.length,
+					averageLoss: avgLoss,
+					time: epochTime,
+					averageForwardTime: times.getAvg("averageForward") || 0,
+					validationLoss: validationLoss || undefined,
+					validationTime: validationTime || undefined,
+					validationAccuracy: validationAccuracy || undefined,
 				});
 		}
+		times.endAndSave("totalTraining");
+
+		return {
+			epoch: epochs,
+			averageLoss: lossOverEpochs[lossOverEpochs.length - 1]!,
+			lossOverEpochs,
+			validationLoss:
+				validationLossOverEpochs.length > 0
+					? validationLossOverEpochs[validationLossOverEpochs.length - 1]!
+					: undefined,
+			validationLossOverEpochs:
+				validationLossOverEpochs.length > 0
+					? validationLossOverEpochs
+					: undefined,
+			validationAccuracy:
+				validationAccuracyOverEpochs.length > 0
+					? validationAccuracyOverEpochs[
+							validationAccuracyOverEpochs.length - 1
+						]!
+					: undefined,
+			validationAccuracyOverEpochs:
+				validationAccuracyOverEpochs.length > 0
+					? validationAccuracyOverEpochs
+					: undefined,
+			times: times.getOutput(),
+		};
 	};
 
 	const getLayers = () => layers;
@@ -122,7 +225,7 @@ export default function createNetwork(
 		train,
 		getLayers,
 		exportData,
-	};
+	} satisfies Network;
 }
 
 export function randomNetworkData(layerSizes: number[]): LayerData[] {
