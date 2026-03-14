@@ -11,6 +11,12 @@ import type {
 } from "./types";
 import { shuffle, timerHelper } from "./utils";
 
+declare const Bun:
+	| {
+			write(filePath: string, data: string): unknown;
+	  }
+	| undefined;
+
 export default function createNetwork(
 	layerData: LayerData[],
 	activation: Activation | Activation[],
@@ -215,7 +221,10 @@ export default function createNetwork(
 			}),
 		}));
 
-		// Save to file
+		if (!Bun) {
+			throw new Error("exportData is only available in Bun runtime.");
+		}
+
 		Bun.write(filePath, JSON.stringify(data, null, 2));
 	};
 

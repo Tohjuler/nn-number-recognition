@@ -14,7 +14,7 @@ import getDataset from "./mnist-data";
 // ---
 
 const TRAINING_RATE = 0.1;
-const EPOCHS = 10;
+const EPOCHS = 20;
 const EXPORT_NAME = "full";
 // const BATCH_SIZE = 32;
 
