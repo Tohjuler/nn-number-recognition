@@ -1,6 +1,6 @@
 export const APP_TEMPLATE = `
 	<div class="page-glow"></div>
-	<main class="app-shell">
+	<main class="app-shell corners">
 		<header>
 			<h1>Digit Tester</h1>
 			<p class="subtitle">
@@ -9,7 +9,7 @@ export const APP_TEMPLATE = `
 		</header>
 
 		<section class="panel-grid">
-			<section class="panel draw-panel">
+			<section class="panel draw-panel corners" style="--bg: #121212;">
 				<div class="panel-head">
 					<h2>Input</h2>
 					<p>Canvas is converted to 28x28 grayscale before inference.</p>
@@ -37,13 +37,13 @@ export const APP_TEMPLATE = `
 				</div>
 			</section>
 
-			<section class="panel result-panel">
+			<section class="panel result-panel corners" style="--bg: #121212;">
 				<div class="panel-head">
 					<h2>Prediction</h2>
 					<p id="model-status">Loading model...</p>
 				</div>
 
-				<div class="prediction-box">
+				<div class="prediction-box corners">
 					<p class="label">Top prediction</p>
 					<p id="predicted-digit" class="predicted-digit">-</p>
 					<p id="predicted-confidence" class="predicted-confidence">Draw and predict</p>
