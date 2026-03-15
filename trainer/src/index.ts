@@ -14,8 +14,8 @@ import getDataset from "./mnist-data";
 // ---
 
 const TRAINING_RATE = 0.1;
-const EPOCHS = 20;
-const EXPORT_NAME = "full";
+const EPOCHS = 10;
+const EXPORT_NAME = "full-no-shuffle";
 // const BATCH_SIZE = 32;
 
 // ---
@@ -40,6 +40,7 @@ async function main() {
 		},
 		lossWithDelta: softmaxCrossEntropyLossWithDelta,
 		lossFunction: softmaxCrossEntropyLoss,
+		noShuffle: true,
 	});
 	console.log(
 		`Training completed in ${formatTime(res.times.totalTraining || 0)}. Final Average Loss: ${res.averageLoss}${res.validationLoss ? `, Final Validation Loss: ${res.validationLoss}, Final Validation Accuracy: ${(res.validationAccuracy! * 100).toFixed(2)}%` : ""}`,

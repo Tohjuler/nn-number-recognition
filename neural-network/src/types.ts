@@ -42,6 +42,8 @@ export type TrainOptions = {
 	// Loss
 	lossFunction?: (output: number[], expected: number[]) => number;
 	lossWithDelta?: (output: number[], expected: number[]) => LossResult;
+
+	noShuffle?: boolean;
 }
 
 export type TrainResult = {
