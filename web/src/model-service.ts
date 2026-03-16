@@ -1,7 +1,7 @@
+import { createNetwork, type LayerData, type Network } from "@neural-network/core";
 import { identity, identityDerivative } from "@neural-network/core/algorithms/identity";
 import { sigmoid, sigmoidDerivative } from "@neural-network/core/algorithms/sigmoid";
 import { softmax } from "@neural-network/core/algorithms/softmax";
-import { createNetwork, type LayerData, type Network } from "neural-network";
 
 export class NeuralModelService {
 	private modelData: LayerData[] | null = null;

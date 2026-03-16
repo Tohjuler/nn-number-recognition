@@ -1,3 +1,4 @@
+import { createNetwork, randomNetworkData } from "@neural-network/core";
 import {
 	softmaxCrossEntropyLoss,
 	softmaxCrossEntropyLossWithDelta,
@@ -7,7 +8,6 @@ import {
 	identityDerivative,
 } from "@neural-network/core/algorithms/identity";
 import { sigmoid, sigmoidDerivative } from "@neural-network/core/algorithms/sigmoid";
-import { createNetwork, randomNetworkData } from "neural-network";
 import getDataset from "./mnist-data";
 
 // Vars
