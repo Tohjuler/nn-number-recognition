@@ -1,5 +1,5 @@
 {
-  "name": "neural-network",
+  "name": "@neural-network/core",
   "type": "module",
   "exports":{
 		".": {

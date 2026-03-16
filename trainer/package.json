@@ -13,6 +13,6 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "neural-network": "link:neural-network"
+    "@neural-network/core": "workspace:*"
   }
 }
