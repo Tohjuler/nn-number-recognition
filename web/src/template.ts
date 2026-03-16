@@ -1,11 +1,31 @@
 export const APP_TEMPLATE = `
-	<div class="page-glow"></div>
 	<main class="app-shell corners">
 		<header>
-			<h1>Digit Tester</h1>
-			<p class="subtitle">
-				Draw a digit from 0 to 9, run inference, and inspect confidence scores from the trained model.
-			</p>
+			<div class="header-top">
+				<div style="width: fit-content;">
+					<h1>Digit Tester</h1>
+					<p class="subtitle">
+						Draw a digit from 0 to 9, run inference, and inspect confidence scores from the trained model.
+					</p>
+				</div>
+
+				<div class="header-model-controls">
+					<label class="field model-field" for="model-select">
+						<span>Model</span>
+						<select id="model-select" aria-label="Select built-in model"></select>
+					</label>
+
+					<label class="btn model-upload-btn" for="model-upload">
+						Upload model JSON
+					</label>
+					<input
+						id="model-upload"
+						type="file"
+						accept=".json,application/json"
+						aria-label="Upload custom model file"
+					/>
+				</div>
+			</div>
 		</header>
 
 		<section class="panel-grid">
