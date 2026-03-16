@@ -1,4 +1,4 @@
-import { shuffle } from "neural-network/utils";
+import { shuffle } from "@neural-network/core/utils";
 
 interface DatasetOptions {
     limit?: number;
