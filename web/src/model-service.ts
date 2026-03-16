@@ -8,7 +8,7 @@ export class NeuralModelService {
 	private network: Network | null = null;
 
 	async load(url: string): Promise<LayerData[]> {
-		const res = await fetch(url);
+		const res = await fetch(import.meta.env.VITE_BASE_URL + url);
 		if (!res.ok) {
 			throw new Error(`Failed to load model: HTTP ${res.status}`);
 		}
