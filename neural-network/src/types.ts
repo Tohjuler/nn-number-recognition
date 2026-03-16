@@ -44,6 +44,7 @@ export type TrainOptions = {
 	lossWithDelta?: (output: number[], expected: number[]) => LossResult;
 
 	noShuffle?: boolean;
+	isOutputLogits?: boolean; // If true, the loss functions will apply softmax internally
 }
 
 export type TrainResult = {

@@ -1,5 +1,6 @@
 import mse from "./algorithms/mean-square-error";
 import { normalize } from "./algorithms/normalization";
+import { softmax } from "./algorithms/softmax";
 import createLayer from "./layer";
 import type {
 	Activation,
@@ -150,7 +151,8 @@ export default function createNetwork(
 				validationLoss =
 					options.validationData.reduce((sum, { inputs, expected }) => {
 						const output = forward(inputs);
-						const predicted = output.indexOf(Math.max(...output));
+						const probs = options?.isOutputLogits ? softmax(output) : output;
+						const predicted = probs.indexOf(Math.max(...probs));
 						const actual = expected.indexOf(Math.max(...expected));
 						if (predicted === actual) correct++;
 						return (

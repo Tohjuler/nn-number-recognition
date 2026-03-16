@@ -13,14 +13,18 @@ import getDataset from "./mnist-data";
 // Vars
 // ---
 
-const TRAINING_RATE = 0.1;
+const TRAINING_RATE = 0.05;
 const EPOCHS = 10;
-const EXPORT_NAME = "full-no-shuffle";
+const EXPORT_NAME = "full-shuffle-low-lr";
 // const BATCH_SIZE = 32;
 
 // ---
 
 async function main() {
+	const lr = parseArgNum("lr", TRAINING_RATE);
+	const epochs = parseArgNum("epochs", EPOCHS);
+	const exportName = parseArg("export", EXPORT_NAME);
+
 	const trainData = await getDataset("train");
 	const validationData = await getDataset("test");
 	const trainingData = trainData;
@@ -30,8 +34,8 @@ async function main() {
 		[sigmoid, sigmoid, identity],
 		[sigmoidDerivative, sigmoidDerivative, identityDerivative],
 	);
-	console.log(`Starting training for ${EPOCHS} epochs...`);
-	const res = nn.train(trainingData, TRAINING_RATE, EPOCHS, {
+	console.log(`Starting training for ${epochs} epochs...`);
+	const res = nn.train(trainingData, lr, epochs, {
 		validationData,
 		onEpochEnd: (data) => {
 			console.log(
@@ -40,7 +44,8 @@ async function main() {
 		},
 		lossWithDelta: softmaxCrossEntropyLossWithDelta,
 		lossFunction: softmaxCrossEntropyLoss,
-		noShuffle: true,
+		noShuffle: false,
+		isOutputLogits: true,
 	});
 	console.log(
 		`Training completed in ${formatTime(res.times.totalTraining || 0)}. Final Average Loss: ${res.averageLoss}${res.validationLoss ? `, Final Validation Loss: ${res.validationLoss}, Final Validation Accuracy: ${(res.validationAccuracy! * 100).toFixed(2)}%` : ""}`,
@@ -56,7 +61,7 @@ async function main() {
 
 	console.log("\nFinal Metrics:");
 	console.table(
-		Array.from({ length: EPOCHS }, (_, i) => ({
+		Array.from({ length: epochs }, (_, i) => ({
 			Epoch: i + 1,
 			"Average Loss": res.lossOverEpochs[i]!,
 			"Validation Loss": res.validationLossOverEpochs
@@ -72,10 +77,10 @@ async function main() {
 
 	// nn.exportData(`./output/network-${EPOCHS}-${BATCH_SIZE}.json`);
 	Bun.write(
-		`./output/training-results-${EXPORT_NAME}-${EPOCHS}.json`,
+		`./output/training-results-${exportName}-${epochs}.json`,
 		JSON.stringify(res, null, 2),
 	);
-	nn.exportData(`./output/network-${EXPORT_NAME}-${EPOCHS}.json`);
+	nn.exportData(`./output/network-${exportName}-${epochs}.json`);
 }
 main();
 
@@ -97,4 +102,17 @@ function formatTime(ms: number): string {
 	}
 
 	return `${ms.toFixed(6)}ms`;
+}
+
+function parseArg(name: string, defaultValue: string): string {
+	const arg = process.argv.find((arg) => arg.startsWith(`--${name}=`));
+	if (arg) {
+		return arg.split("=")[1]!;
+	}
+	return defaultValue;
+}
+
+function parseArgNum(name: string, defaultValue: number): number {
+	const value = parseArg(name, defaultValue.toString());
+	return parseFloat(value);
 }
