@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
 
 export default defineConfig({
-    base: "/nn-number-recognition/"
+	base: "/nn-number-recognition/",
 });

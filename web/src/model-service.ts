@@ -1,7 +1,17 @@
-import { createNetwork, type LayerData, type Network } from "@neural-network/core";
-import { identity, identityDerivative } from "@neural-network/core/algorithms/identity";
+import {
+	createNetwork,
+	type LayerData,
+	type Network,
+} from "@neural-network/core";
+import {
+	identity,
+	identityDerivative,
+} from "@neural-network/core/algorithms/identity";
 import { relu, reluDerivative } from "@neural-network/core/algorithms/relu";
-import { sigmoid, sigmoidDerivative } from "@neural-network/core/algorithms/sigmoid";
+import {
+	sigmoid,
+	sigmoidDerivative,
+} from "@neural-network/core/algorithms/sigmoid";
 import { softmax } from "@neural-network/core/algorithms/softmax";
 
 type ActivationName = "identity" | "sigmoid" | "relu";
@@ -36,7 +46,9 @@ export class NeuralModelService {
 	}
 
 	async loadUploaded(data: unknown, fileName: string): Promise<LayerData[]> {
-		const config = await this.tryLoadConfig(getConfigPathFromModelPath(fileName));
+		const config = await this.tryLoadConfig(
+			getConfigPathFromModelPath(fileName),
+		);
 		return this.loadFromData(data, config);
 	}
 
@@ -111,7 +123,9 @@ function isLayerDataArray(value: unknown): value is LayerData[] {
 }
 
 function isNumericArray(value: unknown): value is number[] {
-	return Array.isArray(value) && value.every((item) => typeof item === "number");
+	return (
+		Array.isArray(value) && value.every((item) => typeof item === "number")
+	);
 }
 
 function getConfigPathFromModelPath(modelPath: string): string {
@@ -122,7 +136,10 @@ function getConfigPathFromModelPath(modelPath: string): string {
 	return `/models-cnf/${modelName}`;
 }
 
-function buildRuntimeConfig(layerCount: number, configData?: unknown): RuntimeConfig {
+function buildRuntimeConfig(
+	layerCount: number,
+	configData?: unknown,
+): RuntimeConfig {
 	const defaultActivations = buildDefaultActivationNames(layerCount);
 	const defaultConfig: RuntimeConfig = {
 		activations: defaultActivations,
@@ -133,7 +150,8 @@ function buildRuntimeConfig(layerCount: number, configData?: unknown): RuntimeCo
 		return defaultConfig;
 	}
 
-	const activations = parseActivationNames(configData, layerCount) ?? defaultActivations;
+	const activations =
+		parseActivationNames(configData, layerCount) ?? defaultActivations;
 	const applySoftmax =
 		typeof configData.applySoftmax === "boolean"
 			? configData.applySoftmax

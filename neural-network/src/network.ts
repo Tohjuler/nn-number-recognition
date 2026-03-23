@@ -114,7 +114,9 @@ export default function createNetwork(
 			times.start("epoch");
 
 			let loss = 0;
-			for (const { inputs, expected } of options?.noShuffle ? trainingData : shuffle(trainingData)) {
+			for (const { inputs, expected } of options?.noShuffle
+				? trainingData
+				: shuffle(trainingData)) {
 				times.start("forward");
 				const output = forward(inputs);
 				times.end("forward", "averageForward");

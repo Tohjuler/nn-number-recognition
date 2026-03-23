@@ -27,12 +27,12 @@ export type EpochData = {
 	validationAccuracy?: number;
 	validationTime?: number;
 	averageForwardTime: number;
-}
+};
 
 export type LossResult = {
 	loss: number;
 	deltaZ?: number[]; // Used for output layer (dLoss/dZ_out)
-}
+};
 
 export type TrainOptions = {
 	validationData?: { inputs: number[]; expected: number[] }[];
@@ -45,7 +45,7 @@ export type TrainOptions = {
 
 	noShuffle?: boolean;
 	isOutputLogits?: boolean; // If true, the loss functions will apply softmax internally
-}
+};
 
 export type TrainResult = {
 	epoch: number;
@@ -56,11 +56,15 @@ export type TrainResult = {
 	validationAccuracy?: number;
 	validationAccuracyOverEpochs?: number[];
 	times: Record<string, number>;
-}
+};
 
 export interface Network {
 	forward(inputs: number[]): number[];
-	backward(target: number[], learningRate: number, outputDeltaZ?: number[]): void;
+	backward(
+		target: number[],
+		learningRate: number,
+		outputDeltaZ?: number[],
+	): void;
 	train(
 		trainingData: { inputs: number[]; expected: number[] }[],
 		learningRate: number,

@@ -48,7 +48,7 @@ body {
 
 .corners {
 	--c: #212121;
-  --bg: #0c0c0c;
+	--bg: #0c0c0c;
 	background:
 		linear-gradient(to right, var(--c) 4px, transparent 4px) 0 0,
 		linear-gradient(to right, var(--c) 4px, transparent 4px) 0 100%,
@@ -138,7 +138,7 @@ h1 {
 #draw-canvas {
 	width: min(100%, 440px);
 	aspect-ratio: 1;
-	
+
 	cursor: crosshair;
 	touch-action: none;
 	justify-self: center;
@@ -193,7 +193,7 @@ input[type="range"] {
 	font-size: 0.92rem;
 	font-weight: 600;
 	cursor: pointer;
-  border-color: transparent;
+	border-color: transparent;
 	transition:
 		transform 160ms ease,
 		border-color 160ms ease,

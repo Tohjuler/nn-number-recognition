@@ -98,7 +98,10 @@ export class CanvasController {
 	}
 
 	renderPreview(input: number[]): void {
-		const image = this.previewCtx.createImageData(MODEL_INPUT_SIZE, MODEL_INPUT_SIZE);
+		const image = this.previewCtx.createImageData(
+			MODEL_INPUT_SIZE,
+			MODEL_INPUT_SIZE,
+		);
 		for (let i = 0; i < input.length; i++) {
 			const value = clamp01(input[i] ?? 0);
 			const color = Math.round(value * 255);
@@ -135,7 +138,13 @@ export class CanvasController {
 		this.drawCtx.fillStyle = DRAW_BACKGROUND;
 		this.drawCtx.fillRect(0, 0, this.drawCanvas.width, this.drawCanvas.height);
 		this.drawCtx.imageSmoothingEnabled = false;
-		this.drawCtx.drawImage(offscreen, 0, 0, this.drawCanvas.width, this.drawCanvas.height);
+		this.drawCtx.drawImage(
+			offscreen,
+			0,
+			0,
+			this.drawCanvas.width,
+			this.drawCanvas.height,
+		);
 		this.drawCtx.imageSmoothingEnabled = true;
 	}
 

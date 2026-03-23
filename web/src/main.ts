@@ -2,7 +2,7 @@ import "./style.css";
 import "@fontsource/maple-mono/index.css";
 
 import { CanvasController } from "./canvas-controller";
-import { MODELS, MODEL_VECTOR_LENGTH } from "./constants";
+import { MODEL_VECTOR_LENGTH, MODELS } from "./constants";
 import { get2d, getElement } from "./dom";
 import { NeuralModelService } from "./model-service";
 import { renderPrediction, renderPredictionEmpty } from "./prediction-ui";

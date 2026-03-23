@@ -1,5 +1,10 @@
 import createNeuron from "./neuron";
-import type { Activation, ActivationDerivative, Layer, NeuronData } from "./types";
+import type {
+	Activation,
+	ActivationDerivative,
+	Layer,
+	NeuronData,
+} from "./types";
 
 export default function createLayer(
 	neuronsData: NeuronData[],
@@ -20,10 +25,7 @@ export default function createLayer(
 	 *
 	 * Returns deltaA_prev (dLoss/dA_prev), where A_prev are the inputs to this layer.
 	 */
-	const backward = (
-		deltaZ: number[],
-		learningRate: number,
-	): number[] => {
+	const backward = (deltaZ: number[], learningRate: number): number[] => {
 		const oldWeights = neurons.map((n) => n.getState().weights.slice());
 
 		for (let i = 0; i < neurons.length; i++) {

@@ -1,7 +1,7 @@
 export function identity(x: number): number {
-    return x;
+	return x;
 }
 
 export function identityDerivative(_x: number): number {
-    return 1;
+	return 1;
 }

@@ -15,7 +15,11 @@ export function renderPrediction(
 
 	const top = ranked[0];
 	if (!top) {
-		renderPredictionEmpty(probabilityList, predictedDigitEl, predictedConfidenceEl);
+		renderPredictionEmpty(
+			probabilityList,
+			predictedDigitEl,
+			predictedConfidenceEl,
+		);
 		return;
 	}
 

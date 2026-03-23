@@ -7,7 +7,10 @@ import {
 	identity,
 	identityDerivative,
 } from "@neural-network/core/algorithms/identity";
-import { sigmoid, sigmoidDerivative } from "@neural-network/core/algorithms/sigmoid";
+import {
+	sigmoid,
+	sigmoidDerivative,
+} from "@neural-network/core/algorithms/sigmoid";
 import getDataset from "./mnist-data";
 
 // Vars
@@ -25,15 +28,15 @@ async function main() {
 	const epochs = parseArgNum("epochs", EPOCHS);
 	const exportName = parseArg("export", EXPORT_NAME);
 
-	const trainData = await getDataset("train");
+	const trainingData = await getDataset("train");
 	const validationData = await getDataset("test");
-	const trainingData = trainData;
 
 	const nn = createNetwork(
 		randomNetworkData([784, 128, 64, 10]),
 		[sigmoid, sigmoid, identity],
 		[sigmoidDerivative, sigmoidDerivative, identityDerivative],
 	);
+
 	console.log(`Starting training for ${epochs} epochs...`);
 	const res = nn.train(trainingData, lr, epochs, {
 		validationData,

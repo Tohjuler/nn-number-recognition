@@ -9,7 +9,10 @@ export function softmaxCrossEntropyLossWithDelta(
 	return crossEntropyLossWithDelta(probs, expectedOneHot);
 }
 
-export function softmaxCrossEntropyLoss(logits: number[], expectedOneHot: number[]) {
+export function softmaxCrossEntropyLoss(
+	logits: number[],
+	expectedOneHot: number[],
+) {
 	const probs = softmax(logits);
 
 	return crossEntropyLoss(probs, expectedOneHot);
@@ -26,7 +29,10 @@ export function crossEntropyLoss(logits: number[], expectedOneHot: number[]) {
 	return loss;
 }
 
-export function crossEntropyLossWithDelta(logits: number[], expectedOneHot: number[]) {
+export function crossEntropyLossWithDelta(
+	logits: number[],
+	expectedOneHot: number[],
+) {
 	// loss = -sum y_i log(p_i)
 	const eps = 1e-12;
 	let loss = 0;

@@ -27,7 +27,7 @@ export default function createNeuron(
 				(sum, input, i) => sum + input * neuronState.weights[i]!,
 				0,
 			) + neuronState.bias;
-        
+
 		neuronState.lastInputs = inputs;
 		neuronState.lastActivation = weightedSum;
 		neuronState.lastOutput = activation(weightedSum);
@@ -36,7 +36,8 @@ export default function createNeuron(
 
 	const updateWeights = (learningRate: number, delta: number): void => {
 		neuronState.weights = neuronState.weights.map(
-			(weight, i) => weight - learningRate * delta * (neuronState.lastInputs?.[i] || 0),
+			(weight, i) =>
+				weight - learningRate * delta * (neuronState.lastInputs?.[i] || 0),
 		);
 		neuronState.bias -= learningRate * delta;
 	};
