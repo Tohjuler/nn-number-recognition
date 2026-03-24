@@ -33,3 +33,14 @@ bun run dev
 ```
 
 It should then run on <http://localhost:5173>
+
+## Models
+
+There currently is 3 models on the web UI, and 1 example model with results in `trainer/models`.
+To see a better formatting on the results of a model in `trainer/models`, use the `scripts/printResults.ts`.
+
+Example on use of `scripts/printResults.ts`:
+
+```bash
+bun run scripts/printResults.ts --path=./models/training-results-full-shuffle-low-lr-10.json
+```
